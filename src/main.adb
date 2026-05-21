@@ -188,7 +188,7 @@ procedure Main with SPARK_Mode is
    end Print_Collision;
 
    procedure Reset_Universe
-   --  TODO: add postcondition
+     with Post => Position_Invariant (U)
    is
    begin
       Tick_Count := To_Big_Real (0);
@@ -209,7 +209,8 @@ begin
    --  TODO: add pre-loop collision check
 
    for Frame in 1 .. 5000 loop
-      --  TODO: add loop invariants
+      pragma Loop_Invariant (Position_Invariant (U));
+      pragma Loop_Invariant (Tick_Count >= To_Big_Real (0));
 
       --  TODO: call soundness lemma and assert collision freedom
 
