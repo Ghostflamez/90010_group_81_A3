@@ -53,6 +53,7 @@ use Ada.Numerics.Big_Numbers.Big_Reals;
 
 procedure Main with SPARK_Mode is
    use type Spatial.Velocity;
+   use type Spatial.Position;
    package Univ is new Universe (10);
 
    package FC is new Float_Conversions (Float);
@@ -82,7 +83,20 @@ procedure Main with SPARK_Mode is
 
    Tick_Count : Big_Real := To_Big_Real (0);
 
-   --  TODO: define Position_Invariant
+   function Position_Invariant (U : Univ.Universe) return Boolean is
+     (Univ.Item_Count (U) = 2
+      and then Tick_Count >= To_Big_Real (0)
+      and then
+        (for all I in 1 .. 2 =>
+           Univ.Get_Position (U, I) =
+             Spatial.To_Position
+               (Vector.Add
+                  (Spatial.To_Vector (Initial_Positions (I)),
+                   Vector.Scale
+                     (Spatial.Vel_To_Vector (Initial_Velocities (I)),
+                      Tick_Count)))
+           and then Univ.Get_Velocity (U, I) = Initial_Velocities (I)
+           and then Univ.Get_Radius   (U, I) = Initial_Radii (I)));
 
    function Squared_Dist
      (U : Univ.Universe; I, J : Integer) return Big_Real is
